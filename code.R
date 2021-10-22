@@ -30,7 +30,7 @@ library("MplusAutomation")
 library("MASS")
 
 # Set working directory to folder
-setwd("/Users/")
+setwd("/Users/joekush/Desktop/myfolder/")
 myfolder <- getwd()
 
 # Import and view data
@@ -126,7 +126,7 @@ for(i in min(data_cfa$study_id):max(data_cfa$study_id)) {
   write.table(input, paste("cfa_study",i,".inp", sep=""), quote=F, row.names=F, col.names=F)
 }
 
-# No variability in x3 for Study_ID = 0, so estimate CFA without x3 (but with x1, x2, x4-x9)
+# No variability in x2 for Study_ID = 0 (study1), so estimate CFA without x2 (but with x1, x3-x9)
 for(i in 0) {
   input <- paste(
     "title: CFA for study",i,"
@@ -136,8 +136,8 @@ for(i in 0) {
     
     variable: 
     names = id study_id sex race x1-x9 hs;
-    usevariables = x1 x2 x4-x9;
-    categorical = x1 x2 x4-x9;
+    usevariables = x1 x3-x9;
+    categorical = x1 x3-x9;
     useobservations = study_id == ",i,";
     missing = all (-999);
     
@@ -146,7 +146,7 @@ for(i in 0) {
     processors = ",my_processors,";
     
     model: 
-    Factor BY x1 x2 x4-x9;
+    Factor BY x1 x3-x9;
     
     output:
     standardized;
@@ -228,7 +228,7 @@ dir.create(paste(myfolder,"/mnlfa", sep=""))
 setwd(paste(myfolder,"/mnlfa", sep="")); getwd()
 write.table(data_mnlfa, "data_mnlfa.dat", row.names=F, col.names=F, quote=F) 
 
-# Baseline model allows covariates to moderate the factor mean & factor variance
+# Baseline model allows covariates to moderate the factor mean & factor variance only
 baseline <- paste(
   "title: Moderation of factor mean and variance
   
@@ -395,23 +395,23 @@ x1Parms[c(13:15, 31:33), ]
 
 x2Parms[c(13:15, 31:33), ]
 #for item 2:
-#intercept moderators: study
-#slope moderators: 
+#intercept moderators: NA
+#slope moderators: study
 
 x3Parms[c(13:15, 31:33), ]
 #for item 3:
-#intercept moderators: 
-#slope moderators:
+#intercept moderators: study & race
+#slope moderators: race
 
 x4Parms[c(13:15, 31:33), ]
 #for item 4:
-#intercept moderators: study
-#slope moderators:
+#intercept moderators: study, sex, & race
+#slope moderators: NA
 
 x5Parms[c(13:15, 31:33), ]
 #for item 5:
 #intercept moderators: study, sex, & race
-#slope moderators:  
+#slope moderators: NA
 
 x6Parms[c(13:15, 31:33), ]
 #for item 6:
@@ -426,11 +426,11 @@ x7Parms[c(13:15, 31:33), ]
 x8Parms[c(13:15, 31:33), ]
 #for item 8:
 #intercept moderators: study & sex
-#slope moderators: study & race
+#slope moderators: study 
 
 x9Parms[c(13:15, 31:33), ]
 #for item 9:
-#intercept moderators: study & race
+#intercept moderators: study 
 #slope moderators: study & sex
 
 
@@ -441,26 +441,62 @@ table_2[c(seq(1,40, 4)+1, seq(1,40, 4)+2, seq(1,40, 4)+3), ] <- c("") # NA # c("
 table_2[rep(c("est", "p"), times=4)] <- c("")
 
 # Add factor parameter estimates for each model to Table 2
-table_2[c(2:4, 6:8, 10:12, 14:16, 18:20, 22:24, 26:28, 30:32, 34:36, 38:40), c(4:7)] <- 
-  modelResults$baseline.out$parameters$unstandardized[c(10:12, 24:26), c("est", "pval")]
+table_2[c(2:4), c(4:5)] <- modelResults$baseline.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(2:4), c(6:7)] <- modelResults$baseline.out$parameters$unstandardized[c(24:26), c("est", "pval")]
+
+table_2[c(6:8), c(4:5)] <- modelResults$x1_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(6:8), c(6:7)] <- modelResults$x1_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(10:12), c(4:5)] <- modelResults$x2_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(10:12), c(6:7)] <- modelResults$x2_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(14:16), c(4:5)] <- modelResults$x3_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(14:16), c(6:7)] <- modelResults$x3_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(18:20), c(4:5)] <- modelResults$x4_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(18:20), c(6:7)] <- modelResults$x4_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(22:24), c(4:5)] <- modelResults$x5_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(22:24), c(6:7)] <- modelResults$x5_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(26:28), c(4:5)] <- modelResults$x6_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(26:28), c(6:7)] <- modelResults$x6_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(30:32), c(4:5)] <- modelResults$x7_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(30:32), c(6:7)] <- modelResults$x7_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(34:36), c(4:5)] <- modelResults$x8_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(34:36), c(6:7)] <- modelResults$x8_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
+table_2[c(38:40), c(4:5)] <- modelResults$x9_model.out$parameters$unstandardized[c(10:12), c("est", "pval")]
+table_2[c(38:40), c(6:7)] <- modelResults$x9_model.out$parameters$unstandardized[c(27:29), c("est", "pval")]
+
 
 # Add item parameter estimates for item models to Table 2
 table_2[c(6:8), c(8:9)] <- modelResults$x1_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(6:8), c(10:11)] <- modelResults$x1_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(10:12), c(8:9)] <- modelResults$x2_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(10:12), c(10:11)] <- modelResults$x2_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(14:16), c(8:9)] <- modelResults$x3_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(14:16), c(10:11)] <- modelResults$x3_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(18:20), c(8:9)] <- modelResults$x4_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(18:20), c(10:11)] <- modelResults$x4_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(22:24), c(8:9)] <- modelResults$x5_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(22:24), c(10:11)] <- modelResults$x5_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(26:28), c(8:9)] <- modelResults$x6_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(26:28), c(10:11)] <- modelResults$x6_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(30:32), c(8:9)] <- modelResults$x7_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(30:32), c(10:11)] <- modelResults$x7_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(34:36), c(8:9)] <- modelResults$x8_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(34:36), c(10:11)] <- modelResults$x8_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
+
 table_2[c(38:40), c(8:9)] <- modelResults$x9_model.out$parameters$unstandardized[c(13:15), c("est", "pval")]
 table_2[c(38:40), c(10:11)] <- modelResults$x9_model.out$parameters$unstandardized[c(31:33), c("est", "pval")]
 
@@ -522,27 +558,27 @@ next_to_last_model <- paste(
   
   ! Moderation of item intercepts (previously determined)
   x1 ON study_id;
-  x2 ON study_id;
-  !no moderation of x3 intercept
-  x4 ON study_id;
+  !no moderation of x2 intercept  
+  x3 ON study_id race;
+  x4 ON study_id sex race;
   x5 ON study_id sex race;
   x6 ON sex;
   x7 ON study_id sex;
   x8 ON study_id sex;
-  x9 ON study_id race;
+  x9 ON study_id;
   
   model constraint:
   NEW(f_study f_sex f_race);
-  NEW(int1 int6 int7 int8 int9); !intercepts for slope moderation equation
+  NEW(int1 int2 int3 int6 int7 int8 int9); !intercepts for slope moderation equation
   
   NEW(x1_study x1_sex);
-  ! no slope moderation of x2
-  ! no slope moderation of x3
+  NEW(x2_study);
+  NEW(x3_race);
   ! no slope moderation of x4
   ! no slope moderation of x5
   NEW(x6_study x6_race);
   NEW(x7_study);
-  NEW(x8_study x8_race);
+  NEW(x8_study);
   NEW(x9_study x9_sex);
   
   !allow covariates to moderate factor variance
@@ -551,13 +587,14 @@ next_to_last_model <- paste(
   
   !allow covariates to moderate item loadings
   x1_loading = int1 + x1_study*study_id + x1_sex*sex;
+  x2_loading = int2 + x2_study*study_id;
+  x3_loading = int3 + x3_race*race;
   ! no slope moderation of x2
-  ! no slope moderation of x3
   ! no slope moderation of x4
   ! no slope moderation of x5
   x6_loading = int6 + x6_study*study_id + x6_race*race;
   x7_loading = int7 + x7_study*study_id;
-  x8_loading = int8 + x8_study*study_id + x8_race*race;
+  x8_loading = int8 + x8_study*study_id;
   x9_loading = int9 + x9_study*study_id + x9_sex*sex;
   
   output:
@@ -585,15 +622,15 @@ out_next_to_last_model$parameters$unstandardized
 out_next_to_last_model$parameters$unstandardized[10:12, ]
 
 # All covariate moderation of the factor variance stays (regardless of significance)
-out_next_to_last_model$parameters$unstandardized[37:39, ]
+out_next_to_last_model$parameters$unstandardized[39:41, ]
 
 # Only significant covariate moderation of item intercepts stay
-out_next_to_last_model$parameters$unstandardized[13:25, ]
-# drop: x5*study, x5*race, x6*sex, x7*study, x9*study, x9*race
+out_next_to_last_model$parameters$unstandardized[13:27, ]
+# drop: x3*study, x4*race, x5*race, x9*study
 
 # Only significant covariate moderation of item loadings stay
-out_next_to_last_model$parameters$unstandardized[45:53, ]
-# drop: x9*study, x9*sex
+out_next_to_last_model$parameters$unstandardized[49:58, ]
+# drop: x1*sex, x2*study, x9*study, x9*sex
 
 # NOTE: This last pruning effort will result in the final MNLFA model
 
@@ -644,27 +681,27 @@ final_MNLFA_model <- paste(
   
   ! Moderation of item intercepts (previously determined)
   x1 ON study_id;
-  x2 ON study_id;
-  !no moderation of x3 intercept
-  x4 ON study_id;
-  !no moderation of x5 intercept
-  !no moderation of x6 intercept
-  !no moderation of x7 intercept
+  !no moderation of x2 intercept  
+  x3 ON race;
+  x4 ON study_id sex;
+  x5 ON study_id sex;
+  x6 ON sex;
+  x7 ON study_id sex;
   x8 ON study_id sex;
-  !no moderation of x9 intercept
+  !no moderation of x9 intercept 
   
   model constraint:
   NEW(f_study f_sex f_race);
-  NEW(int1 int6 int7 int8); !intercepts for slope moderation equation
+  NEW(int1 int3 int6 int7 int8); !intercepts for slope moderation equation
   
-  NEW(x1_study x1_sex);
-  ! no slope moderation of x2
-  ! no slope moderation of x3
+  NEW(x1_study);
+  ! no slope moderation of x2 
+  NEW(x3_race);
   ! no slope moderation of x4
   ! no slope moderation of x5
   NEW(x6_study x6_race);
   NEW(x7_study);
-  NEW(x8_study x8_race);
+  NEW(x8_study);
   ! no slope moderation of x9
   
   !allow covariates to moderate factor variance
@@ -672,15 +709,16 @@ final_MNLFA_model <- paste(
   factor_variance = EXP(f_study*study_id + f_sex*sex + f_race*race);
   
   !allow covariates to moderate item loadings
-  x1_loading = int1 + x1_study*study_id + x1_sex*sex;
+  x1_loading = int1 + x1_study*study_id;
   ! no slope moderation of x2
-  ! no slope moderation of x3
+  x3_loading = int3 + x3_race*race;
+  ! no slope moderation of x2
   ! no slope moderation of x4
   ! no slope moderation of x5
   x6_loading = int6 + x6_study*study_id + x6_race*race;
   x7_loading = int7 + x7_study*study_id;
-  x8_loading = int8 + x8_study*study_id + x8_race*race;
-  ! no slope moderation of x9 
+  x8_loading = int8 + x8_study*study_id;
+  ! no slope moderation of x9
   
   output:
   sampstat;
@@ -703,7 +741,7 @@ out_final_MNLFA_model$parameters$unstandardized
 
 
 # Reproduce Table 3
-table_3 <- out_final_MNLFA_model$parameters$unstandardized[c(10:12, 29:31), c("est", "se", "pval")]
+table_3 <- out_final_MNLFA_model$parameters$unstandardized[c(10:12, 35:37), c("est", "se", "pval")]
 
 table_3
 
@@ -712,30 +750,30 @@ write.csv(table_3, paste(myfolder,"/table_3.csv", sep=""))
 
 
 # Reproduce Table 4
-table_4 <- data.frame(matrix(NA, nrow=27, ncol=6))
+table_4 <- data.frame(matrix(NA, nrow=30, ncol=6))
 
 # Fill in item intercepts for Table 4
-table_4[c(11, 5, 8, 10, 13, 15, 19, 22, 27), c(1:3)] <- 
-  out_final_MNLFA_model$parameters$unstandardized[c(19:27), c("est", "se", "pval")]
+table_4[c(1,4,6,9,13,17,22,26,30), c(1:3)] <- 
+  out_final_MNLFA_model$parameters$unstandardized[c(25:33), c("est", "se", "pval")]
 
 # Fill in item slopes for Table 4
-table_4[c(1, 5, 8, 10, 13, 15, 19, 22, 27), c(4:6)] <- 
-  out_final_MNLFA_model$parameters$unstandardized[c(32, 2:5, 33:35, 9), c("est", "se", "pval")]
+table_4[c(1,4,6,9,13,17,22,26,30), c(4:6)] <- 
+  out_final_MNLFA_model$parameters$unstandardized[c(38,2,39,4,5,40,41,42,9), c("est", "se", "pval")]
 
 # Fill in item intercept moderation for certain covariates
-table_4[c(2, 6, 11, 23, 25), c(1:3)] <- 
-  out_final_MNLFA_model$parameters$unstandardized[c(13:17), c("est", "se", "pval")]
+table_4[c(2,7,10,11,14,15,19,23,24,27,28), c(1:3)] <- 
+  out_final_MNLFA_model$parameters$unstandardized[c(13:23), c("est", "se", "pval")]
 
 # Fill in item slope moderation for certain covariates
-table_4[c(2:3, 16:17, 20, 23:24), c(4:6)] <- 
-  out_final_MNLFA_model$parameters$unstandardized[c(36:42), c("est", "se", "pval")]
+table_4[c(2,7,18,20,23,27), c(4:6)] <- 
+  out_final_MNLFA_model$parameters$unstandardized[c(43:48), c("est", "se", "pval")]
 
 table_4[is.na(table_4)] <- ""
 
 table_4
 
 # Store Table 4 as .csv
-write.csv(table_4, paste(myfolder,"/table_4.csv", sep=""))
+write.csv(table_4, paste(myfolder,"/table_4.csv", sep=""), row.names = F)
 #--------------------------------------------------------------------------------------------#
 
 
@@ -768,7 +806,7 @@ head(merged_data)
 # Estimate the effect of aggressive behavior factor scores on 
 # probability of high school graduation (binary outcome) using 
 # a logistic regression
-logit_model <- glm(hs ~ sex + race + factor, family = binomial(link = "logit"), merged_data)
+logit_model <- glm(hs ~ study_id + sex + race + factor, family = binomial(link = "logit"), merged_data)
 summary(logit_model)
 
 # Odds ratio estimate of factor score

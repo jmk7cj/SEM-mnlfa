@@ -3,17 +3,23 @@
 # 
 # Title: Utilizing Moderated Nonlinear Factor Analysis Models for Integrative Data Analysis
 #
-# Date: 9/1/2021
+# Date: 10/22/2021
 #
 # Purpose: Master .R file to conduct integrative data analyses using moderated 
 #          non-linear factor analysis
+
 #          Step 0: Load packages, set working directory, import data, etc.
+
 #          Step 1: Create Mplus input files for CFAs, estimate models, examine output
+
 #          Step 2: Create Mplus input files for MNLFA model building, estimate models, 
 #                  examine output
+
 #          Step 3: Conduct LRT between each item-model and the baseline model
+
 #          Step 4: Remove remaining non-significant parameters, estimate next-to-last and 
 #                  final MNLFA model
+
 #          Step 5: Merge estimated factor scores to be used in subsequent analyses
 #--------------------------------------------------------------------------------------------#
 

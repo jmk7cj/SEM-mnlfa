@@ -3,7 +3,7 @@
 # 
 # Title: Utilizing Moderated Nonlinear Factor Analysis Models for Integrative Data Analysis
 #
-# Date: 9/1/2021
+# Date: 1/31/2022
 #
 # Purpose: Master .R file to conduct integrative data analyses using moderated 
 #          non-linear factor analysis
@@ -30,8 +30,7 @@ library("MplusAutomation")
 library("MASS")
 
 # Set working directory to folder
-#setwd("/Users/joekush/Library/CloudStorage/Box-Box/JHU Postdoc/summer 2021/mnlfa/sem paper/revisions journal/github")
-setwd("/Users/Joe/Box/JHU Postdoc/summer 2021/mnlfa/sem paper/revisions journal/github")
+setwd("/Users/myfolder") # set own path
 myfolder <- getwd()
 
 # Import and view data
